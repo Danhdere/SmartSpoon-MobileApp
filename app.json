@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "SmartSpoon",
-    "slug": "SmartSpoon",
+    "name": "SmartSpoon-MobileApp",
+    "slug": "SmartSpoon-MobileApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
