@@ -1,13 +1,67 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from openai import OpenAI
+from roboflow import Roboflow
+import supervision as sv
+import cv2
 import os
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Initialize OpenAI client
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+# Initialize Roboflow with the new model
+rf = Roboflow(api_key="PAfKylPxXHmAqTYN1kK0")
+project = rf.workspace().project("multiclass-object-detection-model")
+model = project.version(1).model
+
+@app.route('/detect-food', methods=['POST'])
+def detect_food():
+    try:
+        # Ensure an image is provided in the request
+        if 'image' not in request.files:
+            return jsonify({'error': 'No image provided'}), 400
+            
+        image = request.files['image']
+        temp_path = "temp_image.jpg"
+        image.save(temp_path)
+        
+        # Run inference on the saved image
+        result = model.predict(temp_path, confidence=40, overlap=30).json()
+        
+        # Extract bounding boxes and classes
+        detections = sv.Detections.from_roboflow(result)
+        labels = [item["class"] for item in result["predictions"]]
+        
+        # Load the image using OpenCV
+        image = cv2.imread(temp_path)
+
+        # Annotate the image with bounding boxes and labels
+        label_annotator = sv.LabelAnnotator()
+        box_annotator = sv.BoxAnnotator()
+
+        annotated_image = box_annotator.annotate(
+            scene=image, detections=detections)
+        annotated_image = label_annotator.annotate(
+            scene=annotated_image, detections=detections, labels=labels)
+
+        # Save the annotated image to a file
+        annotated_path = "annotated_image.jpg"
+        cv2.imwrite(annotated_path, annotated_image)
+
+        # Clean up the original temporary image
+        os.remove(temp_path)
+        
+        # Return the annotated image to the frontend
+        return send_file(annotated_path, mimetype='image/jpeg')
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 @app.route('/', methods=['GET'])
 def home():
