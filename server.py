@@ -18,48 +18,77 @@ rf = Roboflow(api_key="PAfKylPxXHmAqTYN1kK0")
 project = rf.workspace().project("multiclass-object-detection-model")
 model = project.version(1).model
 
+UPLOAD_FOLDER = 'temp_uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 @app.route('/detect-food', methods=['POST'])
 def detect_food():
     try:
-        # Ensure an image is provided in the request
+        # Check if image file is present in request
         if 'image' not in request.files:
-            return jsonify({'error': 'No image provided'}), 400
+            return jsonify({'error': 'No image file provided'}), 400
             
-        image = request.files['image']
-        temp_path = "temp_image.jpg"
-        image.save(temp_path)
+        image_file = request.files['image']
+        if image_file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+
+        # Save uploaded file
+        filename = secure_filename(image_file.filename)
+        temp_path = os.path.join(UPLOAD_FOLDER, filename)
+        image_file.save(temp_path)
         
-        # Run inference on the saved image
-        result = model.predict(temp_path, confidence=40, overlap=30).json()
-        
-        # Extract bounding boxes and classes
+        # Run inference
+        try:
+            result = model.predict(temp_path, confidence=40, overlap=30).json()
+        except Exception as e:
+            return jsonify({'error': f'Roboflow prediction failed: {str(e)}'}), 500
+
+        # Extract detections
         detections = sv.Detections.from_roboflow(result)
         labels = [item["class"] for item in result["predictions"]]
         
-        # Load the image using OpenCV
+        # Load and annotate image
         image = cv2.imread(temp_path)
+        if image is None:
+            return jsonify({'error': 'Failed to load image'}), 500
 
-        # Annotate the image with bounding boxes and labels
+        # Annotate image
         label_annotator = sv.LabelAnnotator()
         box_annotator = sv.BoxAnnotator()
-
-        annotated_image = box_annotator.annotate(
-            scene=image, detections=detections)
+        
+        annotated_image = box_annotator.annotate(scene=image, detections=detections)
         annotated_image = label_annotator.annotate(
-            scene=annotated_image, detections=detections, labels=labels)
+            scene=annotated_image, 
+            detections=detections, 
+            labels=labels
+        )
 
-        # Save the annotated image to a file
-        annotated_path = "annotated_image.jpg"
+        # Save annotated image
+        annotated_path = os.path.join(UPLOAD_FOLDER, f'annotated_{filename}')
         cv2.imwrite(annotated_path, annotated_image)
 
-        # Clean up the original temporary image
+        # Clean up original image
         os.remove(temp_path)
         
-        # Return the annotated image to the frontend
-        return send_file(annotated_path, mimetype='image/jpeg')
+        # Return annotated image
+        return send_file(
+            annotated_path,
+            mimetype='image/jpeg',
+            as_attachment=False,
+            download_name='annotated.jpg'
+        )
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"Error processing request: {str(e)}")
+        return jsonify({'error': f'Server error: {str(e)}'}), 500
+    finally:
+        # Clean up annotated image
+        try:
+            if 'annotated_path' in locals():
+                os.remove(annotated_path)
+        except:
+            pass
 
 
 
