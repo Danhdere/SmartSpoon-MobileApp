@@ -19,7 +19,7 @@ const TabsLayout = () => {
           ),
         }}
       />
-      {/* <Tabs.Screen
+      <Tabs.Screen
         name="detect"
         options={{
           title: "Detect",
@@ -28,7 +28,7 @@ const TabsLayout = () => {
             <FontAwesome name="camera" size={size} color={color} />
           ),
         }}
-      /> */}
+      />
       <Tabs.Screen
         name="recipes"
         options={{

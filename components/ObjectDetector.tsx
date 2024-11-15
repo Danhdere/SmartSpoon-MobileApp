@@ -84,7 +84,7 @@ const ObjectDetection: React.FC = () => {
 
   return (
     <div style={{ position: "relative", textAlign: "center" }}>
-      <h2>RoboFlow Object Detection</h2>
+      <h2>Object Detection</h2>
       <input type="file" accept="image/*" onChange={handleImageChange} />
       <button onClick={handleDetection} disabled={!image}>
         Detect Objects
