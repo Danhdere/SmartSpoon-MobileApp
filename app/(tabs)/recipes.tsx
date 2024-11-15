@@ -19,7 +19,7 @@ const Recipes = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://192.168.86.38:5000/generate_recipe', {
+      const response = await fetch('http://127.0.0.1:5000/generate_recipe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import React from 'react';
-import FoodDetector from '@/components/FoodDetector';
+import FoodDetector from '@/components/ObjectDetector';
 import { Stack } from 'expo-router';
 
 const DetectScreen = () => {
