@@ -13,13 +13,22 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "SmartSpoon needs camera access to detect and analyze food items.",
+        "NSMicrophoneUsageDescription": "SmartSpoon needs microphone access for full camera functionality."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.anonymous.SmartSpoonMobileApp"
     },
     "web": {
       "bundler": "metro",
@@ -27,6 +36,13 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow SmartSpoon to access your camera for food detection.",
+          "microphonePermission": "Allow SmartSpoon to access your microphone for video features."
+        }
+      ],
       "expo-router"
     ],
     "experiments": {
