@@ -1,35 +1,49 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native'
-import React, {useState} from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
+  Modal,
+  TextInput,
+  Button,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const Profile = () => {
-  const [data, setData] = useState(null);
-
-  /*
-  Load in data
+// const Stack = createStackNavigator(); // navigates between screens
 
 
+const Profile = ({navigation }: any) => {
+  // State for data
+  const [data, setData] = useState({
+    skillLevel: "Beginner",
+    dietaryPref: ["Gluten-free", "Keto"],
+    allergies: ["Peanuts"],
+  });
 
-  /* onClickFunctions
-  const handleSkillLevelChange = (newSkillLevel) => {
-    setData((prevData) => ({
-      ...prevData, 
-      skillLevel: newSkillLevel, 
-    }));
-  };  
+  // State for modal control
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [newItem, setNewItem] = useState("");
+  const [addTarget, setAddTarget] = useState<"dietaryPref" | "allergies">("dietaryPref");
 
-  const addNewDietaryPref = (newDietaryPref) => {
+  // Add new dietary preference or allergy
+  const handleAddItem = () => {
     setData((prevData) => ({
       ...prevData,
-      dietaryPref: [...prevData.dietaryPref, newDietaryPref], 
+      [addTarget]: [...prevData[addTarget], newItem],
     }));
+    setModalVisible(false);
+    setNewItem("");
   };
 
-  */
-
+  
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Image
           source={require("../../assets/images/default.png")}
@@ -38,33 +52,62 @@ const Profile = () => {
         <Text style={styles.title}>Spoony</Text>
       </View>
 
+      {/* Skill Level */}
       <Text style={styles.label}>Skill Level</Text>
+      <Picker
+        selectedValue={data.skillLevel}
+        onValueChange={(itemValue) =>
+          setData((prevData) => ({ ...prevData, skillLevel: itemValue }))
+        }
+        style={styles.picker}
+      >
+        <Picker.Item label="Beginner" value="Beginner" />
+        <Picker.Item label="Intermediate" value="Intermediate" />
+        <Picker.Item label="Advanced" value="Advanced" />
+      </Picker>
 
+      {/* Dietary Preferences */}
       <Text style={styles.label}>Dietary Preferences</Text>
       <View style={styles.tagContainer}>
-        <TouchableOpacity style={styles.tag}>
-          <Text>Gluten-free</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tag}>
-          <Text>Keto</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addTag}>
+        {data.dietaryPref.map((pref, index) => (
+          <TouchableOpacity key={index} style={styles.tag}>
+            <Text>{pref}</Text>
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity
+          style={styles.addTag}
+          onPress={() => {
+            setAddTarget("dietaryPref");
+            setModalVisible(true);
+          }}
+        >
           <Text>+ Add More</Text>
         </TouchableOpacity>
       </View>
 
+      {/* Allergies */}
       <Text style={styles.label}>Allergies</Text>
       <View style={styles.tagContainer}>
-        <TouchableOpacity style={styles.tag}>
-          <Text>Peanuts</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addTag}>
+        {data.allergies.map((allergy, index) => (
+          <TouchableOpacity key={index} style={styles.tag}>
+            <Text>{allergy}</Text>
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity
+          style={styles.addTag}
+          onPress={() => {
+            setAddTarget("allergies");
+            setModalVisible(true);
+          }}
+        >
           <Text>+ Add More</Text>
         </TouchableOpacity>
       </View>
 
+      {/* Separator */}
       <View style={styles.separator} />
 
+      {/* Past Recipes */}
       <Text style={styles.subTitle}>Past Recipes</Text>
       <View style={styles.recipeCard}>
         <Image
@@ -95,10 +138,16 @@ const Profile = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.button}>
+      {/* View More Button */}
+      <TouchableOpacity 
+        style={styles.button}
+        // onPress={() => navigation.navigate('PastRecipes')}  
+      >
         <Text style={styles.buttonText}>View More Past Recipes</Text>
       </TouchableOpacity>
 
+
+     { /* Navigation Bar */}
       <View style={styles.navBar}>
         <TouchableOpacity>
           <Text style={styles.navText}>Pantry</Text>
@@ -109,7 +158,25 @@ const Profile = () => {
         <TouchableOpacity>
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
-      </View>
+      </View> 
+
+      {/* Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <TextInput
+            style={styles.textInput}
+            placeholder={`Enter new ${addTarget === "dietaryPref" ? "dietary preference" : "allergy"}`}
+            value={newItem}
+            onChangeText={setNewItem}
+          />
+          <Button title="Add" onPress={handleAddItem} />
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -121,7 +188,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
   },
-  logo: { width: 50, height: 50, borderRadius: 25, marginRight:16},
+  logo: { width: 50, height: 50, borderRadius: 25, marginRight: 16 },
   title: { fontSize: 24, fontWeight: "bold", marginLeft: 8, color: "#4B6A43" },
   label: { fontSize: 16, fontWeight: "bold", marginTop: 16 },
   picker: {
@@ -184,6 +251,19 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   navText: { color: "#fff", fontSize: 16 },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  textInput: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 4,
+    width: "80%",
+    marginBottom: 10,
+  },
 });
 
-export default Profile
+export default Profile;
