@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { FlatList, Pressable, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FontAwesome } from '@expo/vector-icons'
@@ -264,9 +264,12 @@ const Pantry = () => {
           </View>
         </View>
       </View>
-      <Pressable>
-        <FontAwesome name='camera' size={30}/>
-      </Pressable>
+      <TouchableOpacity 
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Add Ingredients</Text>
+      </TouchableOpacity>
+      
     </SafeAreaView>
   )
 }
@@ -286,7 +289,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#467140',
     fontSize: 40,
-    padding: 15, 
+    padding: 5, 
     // borderBottomWidth: 2,
     // borderBottomColor: "#8B5E3C",
   },
@@ -319,7 +322,18 @@ const styles = StyleSheet.create({
   lists: {
     alignContent: 'center',
     width: '80%'
-  }
+  },
+  buttonText: { 
+    color: "#fff", 
+    fontSize: 16 
+  },
+  button: {
+    backgroundColor: "#4B6A43",
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: -10,
+  },
 })
 
 export default Pantry

@@ -11,8 +11,13 @@ import {
   Button,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const Profile = () => {
+// const Stack = createStackNavigator(); // navigates between screens
+
+
+const Profile = ({navigation }: any) => {
   // State for data
   const [data, setData] = useState({
     skillLevel: "Beginner",
@@ -134,11 +139,15 @@ const Profile = () => {
       </View>
 
       {/* View More Button */}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity 
+        style={styles.button}
+        // onPress={() => navigation.navigate('PastRecipes')}  
+      >
         <Text style={styles.buttonText}>View More Past Recipes</Text>
       </TouchableOpacity>
 
-      {/* Navigation Bar */}
+
+     { /* Navigation Bar */}
       <View style={styles.navBar}>
         <TouchableOpacity>
           <Text style={styles.navText}>Pantry</Text>
@@ -149,7 +158,7 @@ const Profile = () => {
         <TouchableOpacity>
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
-      </View>
+      </View> 
 
       {/* Modal */}
       <Modal
