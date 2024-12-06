@@ -6,9 +6,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 const PastRecipes = () => {
     return (
       <SafeAreaView style={styles.container}>
-      
         <Text style={styles.title}>Your Past Recipes</Text>
-      
       </SafeAreaView>
     );
   };

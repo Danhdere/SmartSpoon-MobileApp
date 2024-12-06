@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-// import Profile from './app/(tabs)/profile.tsx';
-// import PastRecipes from './components/PastRecipes'; 
+// import Profile from '@/app/(tabs)/Profile';
+// import PastRecipes from '@/components/PastRecipes'; 
 
 const Stack = createNativeStackNavigator();
 
@@ -16,9 +16,9 @@ const Stack = createNativeStackNavigator();
       </NavigationContainer>
     );
   };
+   
+export default NavContainer;
    */
-// export default NavContainer;
-  
 /* export default function App() {
     return (
       <NavigationContainer>
