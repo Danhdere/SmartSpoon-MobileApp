@@ -22,73 +22,24 @@ UPLOAD_FOLDER = 'temp_uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-@app.route('/detect-food', methods=['POST'])
-def detect_food():
-    try:
-        # Check if image file is present in request
-        if 'image' not in request.files:
-            return jsonify({'error': 'No image file provided'}), 400
-            
-        image_file = request.files['image']
-        if image_file.filename == '':
-            return jsonify({'error': 'No selected file'}), 400
+@app.route('/detect', methods=['POST'])
+def detect_objects():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
 
-        # Save uploaded file
-        filename = secure_filename(image_file.filename)
-        temp_path = os.path.join(UPLOAD_FOLDER, filename)
-        image_file.save(temp_path)
-        
-        # Run inference
-        try:
-            result = model.predict(temp_path, confidence=40, overlap=30).json()
-        except Exception as e:
-            return jsonify({'error': f'Roboflow prediction failed: {str(e)}'}), 500
+    # Get the uploaded image file from the request
+    image_file = request.files['file']
+    image_path = "temp.jpg"
+    image_file.save(image_path)  # Save image temporarily on the server
 
-        # Extract detections
-        detections = sv.Detections.from_roboflow(result)
-        labels = [item["class"] for item in result["predictions"]]
-        
-        # Load and annotate image
-        image = cv2.imread(temp_path)
-        if image is None:
-            return jsonify({'error': 'Failed to load image'}), 500
+    # Perform inference using the RoboFlow model
+    result = model.predict(image_path).json()
 
-        # Annotate image
-        label_annotator = sv.LabelAnnotator()
-        box_annotator = sv.BoxAnnotator()
-        
-        annotated_image = box_annotator.annotate(scene=image, detections=detections)
-        annotated_image = label_annotator.annotate(
-            scene=annotated_image, 
-            detections=detections, 
-            labels=labels
-        )
+    # Clean up the temporary image file
+    os.remove(image_path)
 
-        # Save annotated image
-        annotated_path = os.path.join(UPLOAD_FOLDER, f'annotated_{filename}')
-        cv2.imwrite(annotated_path, annotated_image)
-
-        # Clean up original image
-        os.remove(temp_path)
-        
-        # Return annotated image
-        return send_file(
-            annotated_path,
-            mimetype='image/jpeg',
-            as_attachment=False,
-            download_name='annotated.jpg'
-        )
-        
-    except Exception as e:
-        print(f"Error processing request: {str(e)}")
-        return jsonify({'error': f'Server error: {str(e)}'}), 500
-    finally:
-        # Clean up annotated image
-        try:
-            if 'annotated_path' in locals():
-                os.remove(annotated_path)
-        except:
-            pass
+    # Return the detection results to the frontend
+    return jsonify(result)
 
 
 
@@ -108,8 +59,11 @@ def generate_recipe():
         num_recipes = data.get('num_recipes', 1)
 
         # Create the prompt for OpenAI
-        prompt = f"Generate {num_recipes} {cuisine} recipe(s) that can be made in {time} minutes. Include ingredients and step-by-step instructions."
-        
+        prompt = f"""Generate {num_recipes} {cuisine} recipe(s) that can be made in {time} minutes. 
+        Include ingredients and step-by-step instructions. Ingredients you have and try to include from the pantry are:
+        flour, sugar, oil, baking powder, salt, broccoli, garlic, onion, cabbage, tomato, chicken, pork, tofu, 
+        beef, salmon, apple, orange, mango, rice, oats, quinoa, spaghetti, tortillas, butter, milk, yogurt, cheese. You are not limited to these ingredients however.
+        """
         print("Calling OpenAI with prompt:", prompt) # Debug print
 
         # Call OpenAI API
