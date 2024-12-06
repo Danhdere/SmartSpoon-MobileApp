@@ -32,11 +32,16 @@ const ObjectDetection: React.FC = () => {
 
     const formData = new FormData();
     formData.append("file", image);
+    console.log("Image being sent:", image);  // Debug log
+
 
     try {
+      console.log("Sending request to server...");  // Debug log
       const response = await axios.post("http://127.0.0.1:5000/detect", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      console.log("Response received:", response.data);  // Debug log
 
       const predictions = response.data.predictions;
       setPredictions(predictions);

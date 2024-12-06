@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Pressable, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Recipes = () => {
@@ -10,7 +10,6 @@ const Recipes = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGenerate = async () => {
-    // Input validation
     if (!cuisine || !time || !numberOfRecipes) {
       Alert.alert("Missing Fields", "Please fill out all fields before generating recipes.");
       return;
@@ -48,51 +47,61 @@ const Recipes = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <Text style={styles.title}>Generate Recipe</Text>
+      <Text style={styles.title}>Create Recipes!</Text>
+      
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.formContainer}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Cuisine Preference:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., Italian, Mexican"
+              value={cuisine}
+              onChangeText={setCuisine}
+              placeholderTextColor="#999"
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text>Cuisine Preference:</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., Italian, Mexican"
-            value={cuisine}
-            onChangeText={setCuisine}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Time Preference (minutes):</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., 30"
+              keyboardType="numeric"
+              value={time}
+              onChangeText={setTime}
+              placeholderTextColor="#999"
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text>Time Preference (in minutes):</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., 30"
-            keyboardType="numeric"
-            value={time}
-            onChangeText={setTime}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Number of Recipes:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., 3"
+              keyboardType="numeric"
+              value={numberOfRecipes}
+              onChangeText={setNumberOfRecipes}
+              placeholderTextColor="#999"
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text>Number of Recipes:</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., 3"
-            keyboardType="numeric"
-            value={numberOfRecipes}
-            onChangeText={setNumberOfRecipes}
-          />
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <Button 
-            title={isLoading ? "Generating..." : "Generate"} 
+          <Pressable 
+            style={[styles.generateButton, isLoading && styles.generateButtonDisabled]} 
             onPress={handleGenerate}
             disabled={isLoading}
-          />
+          >
+            <Text style={styles.generateButtonText}>
+              {isLoading ? "Generating..." : "Generate Recipes"}
+            </Text>
+          </Pressable>
         </View>
 
         {generatedRecipe ? (
           <View style={styles.recipeContainer}>
+            <View style={styles.recipeLabelContainer}>
+              <Text style={styles.recipeLabelText}>Generated Recipes</Text>
+            </View>
             <Text style={styles.recipeText}>{generatedRecipe}</Text>
           </View>
         ) : null}
@@ -104,40 +113,81 @@ const Recipes = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
+    alignItems: 'center',
+  },
+  scrollContainer: {
+    width: '100%',
+    alignItems: 'center',
+    paddingBottom: 20,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
     textAlign: 'center',
-    marginVertical: 24,
+    color: '#467140',
+    fontSize: 40,
+    padding: 15,
   },
-  inputContainer: {
-    marginBottom: 16,
-    paddingHorizontal: 16,
+  formContainer: {
+    width: '80%',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  inputGroup: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+    fontWeight: '500',
   },
   input: {
+    width: '100%',
     height: 40,
-    borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    marginTop: 8,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: 'white',
+    fontSize: 16,
   },
-  buttonContainer: {
-    marginTop: 24,
-    marginBottom: 16,
-    paddingHorizontal: 16,
+  generateButton: {
+    backgroundColor: '#467140',
+    padding: 15,
+    borderRadius: 20,
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  generateButtonDisabled: {
+    backgroundColor: '#85ab81',
+  },
+  generateButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   recipeContainer: {
-    padding: 16,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    margin: 16,
+    width: '80%',
+    marginTop: 30,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  recipeLabelContainer: {
+    backgroundColor: '#EDC9AF',
+    padding: 10,
+    width: '100%',
+  },
+  recipeLabelText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   recipeText: {
     fontSize: 16,
     lineHeight: 24,
+    padding: 15,
   },
 });
 

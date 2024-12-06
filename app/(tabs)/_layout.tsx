@@ -49,6 +49,16 @@ const TabsLayout = () => {
           ),
         }}
       />
+       <Tabs.Screen
+        name="socials"
+        options={{
+          title: "Social",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="user" size={size} color={color} />
+          ),
+        }}
+      />     
     </Tabs>
   )
 }
