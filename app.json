@@ -43,10 +43,12 @@
           "microphonePermission": "Allow SmartSpoon to access your microphone for video features."
         }
       ],
-      "expo-router"
+      "expo-router",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "newArchEnabled": true
   }
 }
