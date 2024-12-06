@@ -69,7 +69,7 @@ const SocialThread = ({ username }: { username?: string }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Socials</Text>
+      <Text style={styles.title}>Threads</Text>
 
       {/* New Thread Input */}
       <View style={styles.newThreadContainer}>

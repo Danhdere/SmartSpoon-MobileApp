@@ -50,15 +50,25 @@ const TabsLayout = () => {
         }}
       />
        <Tabs.Screen
-        name="socials"
+        name="thread"
         options={{
-          title: "Social",
+          title: "Threads",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="user" size={size} color={color} />
+            <FontAwesome name="search" size={size} color={color} />
           ),
         }}
       />     
+       <Tabs.Screen
+        name="feed"
+        options={{
+          title: "Feed",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="feed" size={size} color={color} />
+          ),
+        }}
+      />   
     </Tabs>
   )
 }
