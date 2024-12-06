@@ -9,10 +9,38 @@ import {
   Modal,
   TextInput,
   Button,
+  ScrollView,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  Profile: undefined;
+  CreateUser: undefined;
+};
+
+type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Profile'>;
+
+interface NewUser {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface FormErrors {
+  username?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+}
 
 const Profile = () => {
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
+  const [showCreateAccount, setShowCreateAccount] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>("Spoony"); // Default value
+
   // State for data
   const [data, setData] = useState({
     skillLevel: "Beginner",
@@ -25,6 +53,15 @@ const Profile = () => {
   const [newItem, setNewItem] = useState("");
   const [addTarget, setAddTarget] = useState<"dietaryPref" | "allergies">("dietaryPref");
 
+  // State for create account
+  const [newUser, setNewUser] = useState<NewUser>({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+
   // Add new dietary preference or allergy
   const handleAddItem = () => {
     setData((prevData) => ({
@@ -35,6 +72,135 @@ const Profile = () => {
     setNewItem("");
   };
 
+  const validateForm = (): boolean => {
+    const tempErrors: FormErrors = {};
+    if (!newUser.username) tempErrors.username = 'Username is required';
+    if (!newUser.email) {
+      tempErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(newUser.email)) {
+      tempErrors.email = 'Email is invalid';
+    }
+    if (!newUser.password) {
+      tempErrors.password = 'Password is required';
+    } else if (newUser.password.length < 6) {
+      tempErrors.password = 'Password must be at least 6 characters';
+    }
+    if (newUser.password !== newUser.confirmPassword) {
+      tempErrors.confirmPassword = "Passwords don't match";
+    }
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  const handleCreateAccount = async () => {
+    if (validateForm()) {
+      try {
+        // Add your API call here
+        console.log('Login', newUser);
+        // Update the username in the header
+        setUsername(newUser.username);
+        // On success:
+        setShowCreateAccount(false);
+        setNewUser({
+          username: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+        });
+      } catch (error) {
+        console.error('Error logging in:', error);
+      }
+    }
+  };
+
+  if (showCreateAccount) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+          <View style={styles.header}>
+            <Text style={styles.title}>Login</Text>
+          </View>
+
+          <View style={styles.createAccountContainer}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Username</Text>
+              <TextInput
+                style={styles.createAccountInput}
+                value={newUser.username}
+                onChangeText={(text) => setNewUser(prev => ({ ...prev, username: text }))}
+                placeholder="Enter username"
+              />
+              {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={styles.createAccountInput}
+                value={newUser.email}
+                onChangeText={(text) => setNewUser(prev => ({ ...prev, email: text }))}
+                placeholder="Enter email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={styles.createAccountInput}
+                value={newUser.password}
+                onChangeText={(text) => setNewUser(prev => ({ ...prev, password: text }))}
+                placeholder="Enter password"
+                secureTextEntry
+              />
+              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Confirm Password</Text>
+              <TextInput
+                style={styles.createAccountInput}
+                value={newUser.confirmPassword}
+                onChangeText={(text) => setNewUser(prev => ({ ...prev, confirmPassword: text }))}
+                placeholder="Confirm password"
+                secureTextEntry
+              />
+              {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+            </View>
+
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={handleCreateAccount}
+            >
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.button, { backgroundColor: '#c3a687', marginTop: 10 }]}
+              onPress={() => setShowCreateAccount(false)}
+            >
+              <Text style={styles.buttonText}>Back to Profile</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+
+        <View style={styles.navBar}>
+          <TouchableOpacity>
+            <Text style={styles.navText}>Pantry</Text>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Text style={styles.navText}>Generate</Text>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Text style={styles.navText}>Profile</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   
   return (
     <SafeAreaView style={styles.container}>
@@ -44,8 +210,16 @@ const Profile = () => {
           source={require("../../assets/images/default.png")}
           style={styles.logo}
         />
-        <Text style={styles.title}>Spoony</Text>
+        <Text style={styles.title}>{username}</Text>
       </View>
+
+      {/* Create Account Button */}
+      <TouchableOpacity 
+        style={[styles.button, { backgroundColor: '#c3a687', marginBottom: 20 }]}
+        onPress={() => setShowCreateAccount(true)}
+      >
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
 
       {/* Skill Level */}
       <Text style={styles.label}>Skill Level</Text>
@@ -178,6 +352,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 16,
+  },
+  createAccountContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#4B6A43",
+    textAlign: "center",
+    marginVertical: 20,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  createAccountInput: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    padding: 15,
+    fontSize: 16,
+  },
+  errorText: {
+    color: "#ff0000",
+    fontSize: 12,
+    marginTop: 5,
   },
   logo: { width: 50, height: 50, borderRadius: 25, marginRight: 16 },
   title: { fontSize: 24, fontWeight: "bold", marginLeft: 8, color: "#4B6A43" },

@@ -2,16 +2,21 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "baseUrl": ".", // Add baseUrl to ensure paths are resolved correctly
     "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
+      "@/*": ["./*"] // Path alias for your project
+    },
+    "jsx": "react-native" // Ensure proper JSX handling for React Native
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules", // Exclude node_modules for better performance
+    "babel.config.js",
+    "metro.config.js"
   ]
 }
